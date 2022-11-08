@@ -1,0 +1,22 @@
+{
+    "cSpell.enabled": false,
+    "editor.formatOnSave": false,
+    "python.formatting.provider": "black",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "[python]": {
+        "editor.formatOnSave": true
+    },
+    // "python.testing.unittestArgs": [
+    //     "-v",
+    //     "-s",
+    //     // "./assignment-2/tests",
+    //     "./assignment-3/tests",
+    //     "-p",
+    //     "*test*.py"
+    // ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.testing.cwd": "./assignment-1"
+}
