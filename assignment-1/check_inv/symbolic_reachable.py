@@ -7,7 +7,7 @@ def print_all_states_bdd(fsm, bdd):
 
 
 def print_one_state_bdd(fsm, bdd):
-    fsm.pick_one_state(bdd).get_str_values()
+    print(fsm.pick_one_state(bdd).get_str_values())
 
 
 def spec_to_bdd(model, spec):
@@ -19,28 +19,20 @@ def spec_to_bdd(model, spec):
 
 
 def symbolic_reachable(fsm, phi):
-    if fsm.init.intersected(phi):
-        return False, [fsm.init & phi]
+    # if fsm.init.intersected(phi): return False, [fsm.init & phi]
 
     new = fsm.init
     reach = fsm.init
-
-    trace = [new]
-
+    trace = []
     while fsm.count_states(new):
-        # print("New: ")
-        # print_bdd(fsm, new)
-        # print("Reach: ")
-        # print_bdd(fsm, reach)
         if new.intersected(phi):
+            trace.append(new & phi)
             return False, trace
-
-        # print("Post: ")
-        # print_bdd(fsm, fsm.post(new))
-
+        else:
+            trace.append(new)
+        
         new = (fsm.post(new)).diff(reach)
         reach = reach | new
-        trace.append(new)
 
     return True, None
 
@@ -63,12 +55,7 @@ def check_explain_inv_spec(fsm, spec):
     are their value.
     """
     specbdd = spec_to_bdd(fsm, spec)
-    # print("Spec BDD")
-    # print_bdd(fsm, specbdd)
-    # res, trace = symbolic_reachable(fsm, specbdd)
     notspecbdd = specbdd.not_()
-    # print("Not Spec BDD")
-    # print_bdd(fsm, notspecbdd)
     res, trace = symbolic_reachable(fsm, notspecbdd)
 
     return res, trace
