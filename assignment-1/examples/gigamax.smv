@@ -172,7 +172,6 @@ ASSIGN
     esac;
 
 
-INVARSPEC  !(p0.writable & p1.writable)
-INVARSPEC  (p0.writable & p1.writable)
+INVARSPEC !(p0.writable & p1.writable)
+INVARSPEC (p0.writable & p1.writable)
 INVARSPEC !p0.abort
-

@@ -1,9 +1,13 @@
 import pynusmv
 
 
-def print_bdd(fsm, bdd):
+def print_all_states_bdd(fsm, bdd):
     for state in fsm.pick_all_states(bdd):
         print(state.get_str_values())
+
+
+def print_one_state_bdd(fsm, bdd):
+    fsm.pick_one_state(bdd).get_str_values()
 
 
 def spec_to_bdd(model, spec):
@@ -15,12 +19,15 @@ def spec_to_bdd(model, spec):
 
 
 def symbolic_reachable(fsm, phi):
+    if fsm.init.intersected(phi):
+        return False, [fsm.init & phi]
+
     new = fsm.init
     reach = fsm.init
 
     trace = [new]
 
-    while fsm.pick_all_states(new):
+    while fsm.count_states(new):
         # print("New: ")
         # print_bdd(fsm, new)
         # print("Reach: ")
@@ -56,9 +63,11 @@ def check_explain_inv_spec(fsm, spec):
     are their value.
     """
     specbdd = spec_to_bdd(fsm, spec)
+    # print("Spec BDD")
     # print_bdd(fsm, specbdd)
     # res, trace = symbolic_reachable(fsm, specbdd)
     notspecbdd = specbdd.not_()
+    # print("Not Spec BDD")
     # print_bdd(fsm, notspecbdd)
     res, trace = symbolic_reachable(fsm, notspecbdd)
 

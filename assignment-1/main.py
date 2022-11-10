@@ -1,6 +1,6 @@
 import pynusmv
 import sys
-from check_inv.symbolic_reachable import check_explain_inv_spec, print_bdd
+from check_inv.symbolic_reachable import check_explain_inv_spec, print_one_state_bdd
 
 
 if len(sys.argv) != 2:
@@ -23,7 +23,7 @@ for prop in pynusmv.glob.prop_database():
         else:
             print("Invariant is not respected")
             for state in trace:
-                print_bdd(fsm, state)
+                print_one_state_bdd(fsm, state)
     else:
         print("Property", spec, "is not an INVARSPEC, skipped.")
 

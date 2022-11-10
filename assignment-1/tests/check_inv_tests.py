@@ -5,8 +5,8 @@ from check_inv.symbolic_reachable import (
     check_explain_inv_spec as custom_check_explain_inv_spec,
 )
 
-
 directory = "./examples"
+extension = ".smv"
 
 
 def exact_check_explain_inv_spec(_, spec):
@@ -31,11 +31,11 @@ def check_inv_file(filename, check_inv):
 class CheckInvTest(unittest.TestCase):
     def test_check_inv(self):
         os.chdir(directory)
-        for filename in glob.glob("*.smv"):
+        for filename in glob.glob("*" + extension):
             expected = list(check_inv_file(filename, exact_check_explain_inv_spec))
             current = list(check_inv_file(filename, custom_check_explain_inv_spec))
-            # print(filename, expected)
-            # print(filename, current)
+            print(filename, expected)
+            print(filename, current)
             self.assertEqual(expected, current)
 
 
