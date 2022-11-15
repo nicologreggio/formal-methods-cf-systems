@@ -1,15 +1,6 @@
 import pynusmv
 
 
-def print_all_states_bdd(fsm, bdd):
-    for state in fsm.pick_all_states(bdd):
-        print(state.get_str_values())
-
-
-def print_one_state_bdd(fsm, bdd):
-    print(fsm.pick_one_state(bdd).get_str_values())
-
-
 def spec_to_bdd(model, spec):
     """
     Return the set of states of `model` satisfying `spec`, as a BDD.
@@ -30,7 +21,7 @@ def symbolic_reachable(fsm, phi):
             return False, trace
         else:
             trace.append(new)
-        
+
         new = (fsm.post(new)).diff(reach)
         reach = reach | new
 
