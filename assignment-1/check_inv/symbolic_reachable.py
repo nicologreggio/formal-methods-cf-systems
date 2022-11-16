@@ -1,6 +1,18 @@
 import pynusmv
 
 
+def get_counterexample(fsm, trace, starting_state):
+    current_state = starting_state
+    counterexample = [current_state]
+    for states in trace[-2::-1]:
+        pre_states = fsm.pre(current_state)
+        current_states = pre_states & states
+        current_state = fsm.pick_one_state_random(current_states)
+        counterexample.insert(0, current_state)
+
+    return counterexample
+
+
 def spec_to_bdd(model, spec):
     """
     Return the set of states of `model` satisfying `spec`, as a BDD.
