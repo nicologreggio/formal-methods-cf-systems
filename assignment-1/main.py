@@ -1,72 +1,47 @@
 import pynusmv
-import argparse
-from enum import Enum
+import sys
 
-from check_inv.symbolic_reachable import check_explain_inv_spec, get_counterexample
-
-
-def print_counterexample(counterexample):
-    for state in counterexample:
-        print(state.get_str_values())
+from check_inv.symbolic_reachable import check_explain_inv_spec
 
 
-class PrintOptions(Enum):
-    all = "all"
-    one = "one"
+def get_counterexample(fsm, trace, starting_state):
+    current_state = starting_state
+    counterexample = [current_state]
+    for states in trace[-2::-1]:
+        pre_states = fsm.pre(current_state)
+        current_states = pre_states & states
+        current_state = fsm.pick_one_state_random(current_states)
+        counterexample.insert(0, current_state)
 
-    def __str__(self):
-        return self.value
-
-
-def init_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", type=str, required=True, help="Path to the file to test")
-    parser.add_argument(
-        "--printoptions",
-        type=PrintOptions,
-        choices=list(PrintOptions),
-        default=PrintOptions.one,
-        help="Choose what to print",
-    )
-
-    return parser
+    return counterexample
 
 
-def main():
-    with pynusmv.init.init_nusmv():
-        args = init_args().parse_args()
+if len(sys.argv) != 2:
+    print("Usage:", sys.argv[0], "filename.smv")
+    sys.exit(1)
 
-        pynusmv.glob.load_from_file(args.f)
-        pynusmv.glob.compute_model()
-        invtype = pynusmv.prop.propTypes["Invariant"]
-        fsm = pynusmv.glob.prop_database().master.bddFsm
+pynusmv.init.init_nusmv()
+filename = sys.argv[1]
+pynusmv.glob.load_from_file(filename)
+pynusmv.glob.compute_model()
+invtype = pynusmv.prop.propTypes["Invariant"]
+fsm = pynusmv.glob.prop_database().master.bddFsm
+for prop in pynusmv.glob.prop_database():
+    spec = prop.expr
+    if prop.type == invtype:
+        print("Property", spec, "is an INVARSPEC.")
+        res, trace = check_explain_inv_spec(fsm, spec)
+        if res == True:
+            print("Invariant is respected")
+        else:
+            print("Invariant is not respected")
 
-        for prop in pynusmv.glob.prop_database():
-            spec = prop.expr
-            if prop.type == invtype:
-                print("Property", spec, "is an INVARSPEC.")
-                res, trace = check_explain_inv_spec(fsm, spec)
-                if res == True:
-                    print("Invariant is respected")
-                else:
-                    print("Invariant is not respected")
-                    if args.printoptions == PrintOptions.one:
-                        counterexample = get_counterexample(
-                            fsm, trace, fsm.pick_one_state_random(trace[-1])
-                        )
-                        print_counterexample(counterexample)
+            counterexample = get_counterexample(
+                fsm, trace, fsm.pick_one_state_random(trace[-1])
+            )
+            for state in counterexample:
+                print(state.get_str_values())
+    else:
+        print("Property", spec, "is not an INVARSPEC, skipped.")
 
-                    # elif args.printoptions == PrintOptions.all:
-                    #     counterexamples = set()
-                    #     for state in fsm.pick_all_states(trace[-1]):
-                    #         counterexamples.add(get_counterexample(fsm, trace, state))
-
-                    #     for i, counterexample in counterexamples:
-                    #         print("Counterexample number", i + 1)
-                    #         print_counterexample(counterexample)
-            else:
-                print("Property", spec, "is not an INVARSPEC, skipped.")
-
-
-if __name__ == "__main__":
-    main()
+pynusmv.init.deinit_nusmv()
