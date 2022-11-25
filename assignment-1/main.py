@@ -6,14 +6,20 @@ from check_inv.symbolic_reachable import check_explain_inv_spec
 
 def get_counterexample(fsm, trace, starting_state):
     current_state = starting_state
-    counterexample = [current_state]
+    counterexample = [(starting_state, {})]
     for states in trace[-2::-1]:
-        pre_states = fsm.pre(current_state)
-        current_states = pre_states & states
-        current_state = fsm.pick_one_state_random(current_states)
-        counterexample.insert(0, current_state)
+        pre_states = fsm.pre(current_state) & states
+        pre_state = fsm.pick_one_state_random(pre_states)
+        inputs = fsm.get_inputs_between_states(pre_state, current_state)
+        counterexample = [(pre_state, fsm.pick_one_inputs(inputs))] + counterexample
+        current_state = pre_state
 
     return counterexample
+
+
+def print_trace(trace):
+    for state, inp in trace:
+        print((state.get_str_values(), inp.get_str_values() if inp else {}))
 
 
 if len(sys.argv) != 2:
@@ -39,8 +45,7 @@ for prop in pynusmv.glob.prop_database():
             counterexample = get_counterexample(
                 fsm, trace, fsm.pick_one_state_random(trace[-1])
             )
-            for state in counterexample:
-                print(state.get_str_values())
+            print_trace(counterexample)
     else:
         print("Property", spec, "is not an INVARSPEC, skipped.")
 
