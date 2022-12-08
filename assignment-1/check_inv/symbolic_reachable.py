@@ -1,7 +1,14 @@
 import pynusmv
+from pynusmv.fsm import BddFsm
+from pynusmv.prop import Spec
+from pynusmv.dd import BDD
+
+from typing import Tuple, List, NewType
+
+Trace = NewType("Trace", List[BDD])
 
 
-def spec_to_bdd(model, spec):
+def spec_to_bdd(model: BddFsm, spec: Spec) -> BDD:
     """
     Return the set of states of `model` satisfying `spec`, as a BDD.
     """
@@ -9,7 +16,7 @@ def spec_to_bdd(model, spec):
     return bddspec
 
 
-def symbolic_reachable(fsm, phi):
+def symbolic_reachable(fsm: BddFsm, phi: BDD) -> Tuple[bool, Trace | None]:
     new = fsm.init
     reach = fsm.init
     trace = []
@@ -26,7 +33,7 @@ def symbolic_reachable(fsm, phi):
     return True, None
 
 
-def check_explain_inv_spec(fsm, spec):
+def check_explain_inv_spec(fsm: BddFsm, spec: Spec) -> Tuple[bool, Trace | None]:
     """
     Return whether the loaded SMV model satisfies or not the invariant
     `spec`, that is, whether all reachable states of the model satisfies `spec`
