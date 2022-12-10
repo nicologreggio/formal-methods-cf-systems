@@ -23,14 +23,14 @@ def symbolic_reachable(fsm: BddFsm, phi: BDD) -> Tuple[bool, Trace | None]:
     while fsm.count_states(new):
         if new.intersected(phi):
             trace.append(new & phi)
-            return False, trace
+            return True, trace
         else:
             trace.append(new)
 
         new = (fsm.post(new)).diff(reach)
         reach = reach | new
 
-    return True, None
+    return False, None
 
 
 def check_explain_inv_spec(fsm: BddFsm, spec: Spec) -> Tuple[bool, Trace | None]:
@@ -54,4 +54,4 @@ def check_explain_inv_spec(fsm: BddFsm, spec: Spec) -> Tuple[bool, Trace | None]
     notspecbdd = specbdd.not_()
     res, trace = symbolic_reachable(fsm, notspecbdd)
 
-    return res, trace
+    return not(res), trace
