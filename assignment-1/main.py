@@ -44,12 +44,7 @@ for prop in pynusmv.glob.prop_database():
             print("Invariant is not respected")
 
             witness = get_witness(fsm, trace)
-            for _, el in enumerate(witness):
-                '''if i % 2 == 0:
-                    print("%State: ", end="")
-                else:
-                    print("*Input: ", end="")'''
-
+            for el in witness:
                 print(el.get_str_values())
     else:
         print("Property", spec, "is not an INVARSPEC, skipped.")
