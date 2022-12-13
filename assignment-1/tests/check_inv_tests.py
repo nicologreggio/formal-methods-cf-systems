@@ -34,8 +34,9 @@ class CheckInvTest(unittest.TestCase):
         for filename in glob.glob("*" + extension):
             expected = list(check_inv_file(filename, exact_check_explain_inv_spec))
             current = list(check_inv_file(filename, custom_check_explain_inv_spec))
-            print(filename, expected)
-            print(filename, current)
+            print(filename)
+            print("Expected:", expected)
+            print("Current:", current, "\n")
             self.assertEqual(expected, current)
 
 

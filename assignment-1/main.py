@@ -44,11 +44,11 @@ for prop in pynusmv.glob.prop_database():
             print("Invariant is not respected")
 
             witness = get_witness(fsm, trace)
-            for i, el in enumerate(witness):
-                if i % 2 == 0:
+            for _, el in enumerate(witness):
+                '''if i % 2 == 0:
                     print("%State: ", end="")
                 else:
-                    print("*Input: ", end="")
+                    print("*Input: ", end="")'''
 
                 print(el.get_str_values())
     else:
