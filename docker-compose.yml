@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  python:
+    image: pynusmv-fmcs
+    build: 
+      context: .
+    tty: true
+    volumes:
+      - .:/code
+    command: bash
