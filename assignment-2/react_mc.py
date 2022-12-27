@@ -2,6 +2,7 @@ import pynusmv
 import sys
 from pynusmv_lower_interface.nusmv.parser import parser 
 from collections import deque
+from pynusmv.dd import BDD 
 
 specTypes = {'LTLSPEC': parser.TOK_LTLSPEC, 'CONTEXT': parser.CONTEXT,
     'IMPLIES': parser.IMPLIES, 'IFF': parser.IFF, 'OR': parser.OR, 'XOR': parser.XOR, 'XNOR': parser.XNOR,
@@ -87,7 +88,32 @@ def parse_react(spec):
         return None
     return (f_formula, g_formula)
 
-def check_react_spec(spec):
+def symbolic_repeatable(fsm, F): 
+    new = fsm.init
+    reach = fsm.init
+    #trace = []
+    
+    # First phase 
+    while fsm.count_states(new):
+        new = (fsm.post(new)).diff(reach)
+        reach = reach | new
+    
+    # Second phase 
+    recur = reach & F
+    while fsm.count_states(recur): 
+        # I want to initialize pre_reach as the empty BDD
+        pre_reach = BDD.false() 
+        new = fsm.pre(recur)
+        while fsm.count_states(new):
+            pre_reach = pre_reach | new 
+            if recur.entailed(pre_reach): 
+                return True, None 
+            new = (fsm.pre(new)).diff(pre_reach)
+        recur = recur & pre_reach
+    return False, None 
+
+def check_react_spec(fsm,spec):
+    # I changed the signature, this also wants the fsm 
     """
     Return whether the loaded SMV model satisfies or not the GR(1) formula
     `spec`, that is, whether all executions of the model satisfies `spec`
@@ -95,7 +121,19 @@ def check_react_spec(spec):
     """
     if parse_react(spec) == None:
         return None
-    return pynusmv.mc.check_explain_ltl_spec(spec)
+    #return pynusmv.mc.check_explain_ltl_spec(spec)
+    
+    f, g = parse_react(spec)
+    f_bdd = spec_to_bdd(fsm, f)
+    g_bdd = spec_to_bdd(fsm, g)
+    # TODO: what does it mean to check the invariant? 
+    f_not = f_bdd.not_()
+    g_not = g_bdd.not_()
+    rep_f = symbolic_repeatable(fsm, f_bdd)
+    if not rep_f: 
+        return True 
+    else: 
+        return symbolic_repeatable(fsm, g_bdd)
 
 if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "filename.smv")
@@ -106,13 +144,14 @@ filename = sys.argv[1]
 pynusmv.glob.load_from_file(filename)
 pynusmv.glob.compute_model()
 type_ltl = pynusmv.prop.propTypes['LTL']
+fsm = pynusmv.glob.prop_database().master.bddFsm # I added this...
 for prop in pynusmv.glob.prop_database():
     spec = prop.expr
     print(spec)
     if prop.type != type_ltl:
         print("property is not LTLSPEC, skipping")
         continue
-    res = check_react_spec(spec)
+    res = check_react_spec(fsm,spec) # ... because I changed the signature here 
     if res == None:
         print('Property is not a GR(1) formula, skipping')
     if res[0] == True:
