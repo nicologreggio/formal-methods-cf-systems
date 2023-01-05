@@ -4,8 +4,7 @@ services:
   python:
     image: pynusmv-fmcs
     build: 
-      context: .
-    platform: linux/amd64
+      context: ./docker-image
     tty: true
     volumes:
       - .:/code
