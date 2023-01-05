@@ -5,6 +5,7 @@ services:
     image: pynusmv-fmcs
     build: 
       context: ./docker-image
+    platform: linux/amd64
     tty: true
     volumes:
       - .:/code
