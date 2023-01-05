@@ -1,4 +1,4 @@
-MODULE monitor
+MODULE monitor(f, g)
     VAR 
         state : {a, b, c}; 
     
@@ -6,11 +6,14 @@ MODULE monitor
         init(state) := a; 
         next(state) := 
             case 
-                state = a : {a, b}; 
-                state = b : {b, c}; 
+                state = a               : {a, b}; 
+                state = b & !f & !g     : b; 
+                state = b & !g          : c; 
+                state = c & !g & f      : b;  
             esac; 
         
-    DEFINE 
+    -- LTLSPEC
+    --    G F c; 
 
 
 -- LTL condition that indicates acceptance of the monitor: 

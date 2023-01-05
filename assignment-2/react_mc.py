@@ -124,23 +124,9 @@ def check_react_spec(fsm,spec):
         return None
     #return pynusmv.mc.check_explain_ltl_spec(spec)
     
-    # phi = GF f -> GF g
-    # -phi = GF f & FG -g
-    # should I build a BM for -phi? 
     f, g = parse_react(spec)
     f_bdd = spec_to_bdd(fsm, f)
     g_bdd = spec_to_bdd(fsm, g)
-    # TODO: what does it mean to check the invariant? 
-    f_not = f_bdd.not_()
-    g_not = g_bdd.not_()
-    ''' 
-    This is trash I guess 
-    rep_f = symbolic_repeatable(fsm, f_not)
-    if not rep_f: 
-        return True
-    else: 
-        return symbolic_repeatable(fsm, g_not)
-        '''
 
 if len(sys.argv) != 2:
     print("Usage:", sys.argv[0], "filename.smv")

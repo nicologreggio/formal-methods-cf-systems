@@ -15,45 +15,40 @@
 ---------------------------------------------------------------------------
 -- Section 2.1, LTL Properties
 ---------------------------------------------------------------------------
-
+#define ONE 0ud1_1
 
 --0: (a)
-
 LTLSPEC
     G !(empty & full); 
 
 --1: (b)
-
 LTLSPEC
     ((F G write) & (F G ! read)) -> F full;
     -- ((F G write) & (! G F read)) -> F full;
+
 --2: (c)
-
 LTLSPEC
-  TRUE;
-
+    (wr_data = ONE & write) -> F (rd_data = ONE);
 
 --3: (d)
-
 LTLSPEC
-  TRUE;
-
+  (wr_data = data1 & write) -> F (rd_data = data1);
 
 --4: (e)
-
 LTLSPEC
-  TRUE;
+    (wr_data = data1 & write) -> (F (rd_data = data1) & X((! empty) U rd_data = data1));
+  -- chissà se è giusta
 
 --5: (f)
-
 LTLSPEC
-  TRUE;
-
+    TRUE; 
+    --((wr_data = data1 & write) & X(wr_data = data2 & write)) -> F (rd_data = data1 & X(rd_data = data2));
+    -- this is false... probably not right invariant 
 ---------------------------------------------------------------------------
 -- Section 2.2, LTL Property showing bug
 ---------------------------------------------------------------------------
 
 --6:
 LTLSPEC
-  TRUE;
+    G (empty -> rd_p = wr_p); 
 

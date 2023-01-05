@@ -1,0 +1,27 @@
+MODULE monitor
+    VAR
+        state : {q0, q1, q2, q3}; 
+
+    -- recall that f is 'full' 
+    --DEFINE
+    --    f := case
+    --        state = q0 : TRUE; 
+    --        state = q1 : FALSE; 
+    --        state = q2 : TRUE; 
+    --        state = q3 : FALSE; 
+    --    esac; 
+
+    ASSIGN
+        -- init(state) := {q0, q1, q2}; 
+        init(state) := {q1}; 
+        -- because at the beginning is not full
+
+        next(state) := case
+            state = q0 & full : q3; 
+            state = q1 & !full : {q0, q1, q2}; 
+            state = q2 & full : {q0, q1, q2}; 
+            state = q3 & !full : q3; 
+            TRUE : state; 
+        esac; 
+
+    -- accepting: q0, q2, q3

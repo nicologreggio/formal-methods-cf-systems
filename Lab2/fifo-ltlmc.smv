@@ -17,9 +17,10 @@ MODULE main
 
 ---------------------------------------------------------------------------
 -- Exercise 3, (a):
+-- I used G !full as formula 
 ---------------------------------------------------------------------------
 -- <NEGATED FORMULA, IN NORMALISED FORM>
-
+-- F full 
 ---------------------------------------------------------------------------
 -- Exercise 3, (b):
 ---------------------------------------------------------------------------
@@ -29,18 +30,24 @@ MODULE main
 
 MODULE neg_fmla_ba(write, full)
   VAR
-    st : 0 .. 3;  -- <ADJUST NUMBER OF STATES, AS NEEDED>
+    st : {q0, q1, q2, q3}; 
   ASSIGN
-    init(st) := 0;
-    next(st) := 0;  -- <ADAPT AS NEEDED>
-
+    init(st) := {q1}; 
+    next(st) := case
+            st = q0 & full : q3; 
+            st = q1 & !full : {q0, q1, q2}; 
+            st = q2 & full : {q0, q1, q2}; 
+            st = q3 & !full : q3; 
+            TRUE : st; 
+        esac; 
 ---------------------------------------------------------------------------
 -- Exercise 4, (c):
 ---------------------------------------------------------------------------
 -- Add a property here that, if true, captures that there are *no*
 -- accepting runs of the automaton.
 
-LTLSPEC TRUE;
+LTLSPEC 
+    G F (st = q0 | st = q1 | st = q2);
 
 --=========================================================================
 -- FIFO model
