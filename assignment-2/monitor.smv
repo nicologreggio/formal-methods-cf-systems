@@ -1,0 +1,17 @@
+MODULE monitor
+    VAR 
+        state : {a, b, c}; 
+    
+    ASSIGN
+        init(state) := a; 
+        next(state) := 
+            case 
+                state = a : {a, b}; 
+                state = b : {b, c}; 
+            esac; 
+        
+    DEFINE 
+
+
+-- LTL condition that indicates acceptance of the monitor: 
+-- if true, indicates that there are no accepting runs of the monitor.
