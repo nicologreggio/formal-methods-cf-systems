@@ -20,14 +20,13 @@
 --0: (a)
 
 LTLSPEC
-  TRUE;
+    G !(empty & full); 
 
 --1: (b)
 
 LTLSPEC
-  TRUE;
-
-
+    ((F G write) & (F G ! read)) -> F full;
+    -- ((F G write) & (! G F read)) -> F full;
 --2: (c)
 
 LTLSPEC
