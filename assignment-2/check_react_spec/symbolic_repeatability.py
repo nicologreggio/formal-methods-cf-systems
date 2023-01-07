@@ -140,9 +140,8 @@ def find_the_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Tuple[State, Trac
         trace = [new]
         while fsm.count_states(new):
             R = R | new
-            new = fsm.post(new) & pre_reach
+            new = (fsm.post(new) & pre_reach) - R
             trace.append(new)
-            new = new - R
 
         R = R & recur
 
@@ -156,11 +155,13 @@ def find_the_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Tuple[State, Trac
 def build_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Witness:
     s, trace = find_the_cycle(fsm, recur, pre_reach)
 
-    k = 0
+    k = -1
     for i in range(len(trace)):
         if s.entailed(trace[i]):
             k = i
             break
+
+    # print("Cycle:", len(trace), k)
 
     path = [s]
     curr = s
@@ -181,6 +182,8 @@ def build_prefix(fsm: BddFsm, trace: Trace, s: State) -> Witness:
         if s.entailed(states):
             k = i
             break
+
+    # print("Prefix", len(trace), k)
 
     prefix = []
     curr = s
@@ -204,9 +207,16 @@ def symbolic_repeatability(fsm: BddFsm, f: BDD, g: BDD) -> Tuple[bool, Witness |
         trace.append(new)
         reach = reach | new
 
-    recur = reach & f & ~g
+    not_g = ~g
+
+    # []<>f -> []<>g
+    # ~[]<>f or []<>g
+    # ~(~[]<>f or []<>g)
+    # []<>f and <>[]~g
+
+    recur = reach & f & not_g
     while fsm.count_states(recur):
-        new = fsm.pre(recur) & ~g
+        new = fsm.pre(recur) & not_g
         pre_reach = BDD.false(fsm)
 
         while fsm.count_states(new):
@@ -217,7 +227,7 @@ def symbolic_repeatability(fsm: BddFsm, f: BDD, g: BDD) -> Tuple[bool, Witness |
                 prefix = build_prefix(fsm, trace, cycle[0])
                 return True, prefix + cycle
 
-            new = (fsm.pre(new) & ~g) - pre_reach
+            new = (fsm.pre(new) & not_g) - pre_reach
 
         recur = recur & pre_reach
 
