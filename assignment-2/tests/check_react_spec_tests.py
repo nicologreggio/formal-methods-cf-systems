@@ -23,7 +23,7 @@ def check_react_spec_file(filename, check_react_spec):
         for prop in pynusmv.glob.prop_database():
             spec = prop.expr
             if prop.type == type_ltl:
-                res, _ = check_react_spec(fsm, spec)
+                res, *_ = check_react_spec(fsm, spec)
                 yield res
 
 

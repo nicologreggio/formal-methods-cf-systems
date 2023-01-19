@@ -161,8 +161,6 @@ def build_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Witness:
             k = i
             break
 
-    # print("Cycle:", len(trace), k)
-
     path = [s]
     curr = s
     for i in range(k - 1, -1, -1):
@@ -183,8 +181,6 @@ def build_prefix(fsm: BddFsm, trace: Trace, s: State) -> Witness:
             k = i
             break
 
-    # print("Prefix", len(trace), k)
-
     prefix = []
     curr = s
     for i in range(k - 1, -1, -1):
@@ -197,7 +193,9 @@ def build_prefix(fsm: BddFsm, trace: Trace, s: State) -> Witness:
     return prefix
 
 
-def symbolic_repeatability(fsm: BddFsm, f: BDD, g: BDD) -> Tuple[bool, Witness | None]:
+def symbolic_repeatability(
+    fsm: BddFsm, f: BDD, g: BDD
+) -> Tuple[bool, Witness | None, int]:
     reach = fsm.init
     new = fsm.init
 
@@ -208,11 +206,6 @@ def symbolic_repeatability(fsm: BddFsm, f: BDD, g: BDD) -> Tuple[bool, Witness |
         reach = reach | new
 
     not_g = ~g
-
-    # []<>f -> []<>g
-    # ~[]<>f or []<>g
-    # ~(~[]<>f or []<>g)
-    # []<>f and <>[]~g
 
     recur = reach & f & not_g
     while fsm.count_states(recur):
@@ -225,16 +218,16 @@ def symbolic_repeatability(fsm: BddFsm, f: BDD, g: BDD) -> Tuple[bool, Witness |
             if recur.entailed(pre_reach):
                 cycle = build_cycle(fsm, recur, pre_reach)
                 prefix = build_prefix(fsm, trace, cycle[0])
-                return True, prefix + cycle
+                return True, prefix + cycle, len(prefix)
 
             new = (fsm.pre(new) & not_g) - pre_reach
 
         recur = recur & pre_reach
 
-    return False, None
+    return False, None, -1
 
 
-def check_react_spec(fsm: BddFsm, spec: Spec):
+def check_react_spec(fsm: BddFsm, spec: Spec) -> Tuple[bool, Witness | None, int]:
     """
     Return whether the loaded SMV model satisfies or not the GR(1) formula
     `spec`, that is, whether all executions of the model satisfies `spec`
@@ -248,6 +241,6 @@ def check_react_spec(fsm: BddFsm, spec: Spec):
     f, g = spec_react
     f_bdd, g_bdd = spec_to_bdd(fsm, f), spec_to_bdd(fsm, g)
 
-    res, witness = symbolic_repeatability(fsm, f_bdd, g_bdd)
+    res, witness, i_starting_loop = symbolic_repeatability(fsm, f_bdd, g_bdd)
 
-    return not (res), witness
+    return not (res), witness, i_starting_loop
