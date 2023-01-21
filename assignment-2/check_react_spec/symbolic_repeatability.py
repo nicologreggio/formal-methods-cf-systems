@@ -137,11 +137,11 @@ def find_the_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Tuple[State, Trac
         new = fsm.post(s) & pre_reach
         R = BDD.false(fsm)
 
-        trace = [new]
+        new_frontiers = [new]
         while fsm.count_states(new):
             R = R | new
             new = (fsm.post(new) & pre_reach) - R
-            trace.append(new)
+            new_frontiers.append(new)
 
         R = R & recur
 
@@ -149,35 +149,35 @@ def find_the_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Tuple[State, Trac
         if not found:
             s = fsm.pick_one_state(R)
 
-    return s, trace
+    return s, new_frontiers
 
 
 def build_cycle(fsm: BddFsm, recur: BDD, pre_reach: BDD) -> Witness:
-    s, trace = find_the_cycle(fsm, recur, pre_reach)
+    s, new_frontiers = find_the_cycle(fsm, recur, pre_reach)
 
     k = -1
-    for i in range(len(trace)):
-        if s.entailed(trace[i]):
+    for i in range(len(new_frontiers)):
+        if s.entailed(new_frontiers[i]):
             k = i
             break
 
-    path = [s]
+    cycle = [s]
     curr = s
     for i in range(k - 1, -1, -1):
-        pre_states = fsm.pre(curr) & trace[i]
+        pre_states = fsm.pre(curr) & new_frontiers[i]
         pre_state = fsm.pick_one_state(pre_states)
         inputs = fsm.get_inputs_between_states(pre_state, curr)
-        path = [pre_state, fsm.pick_one_inputs(inputs)] + path
+        cycle = [pre_state, fsm.pick_one_inputs(inputs)] + cycle
         curr = pre_state
 
     inputs = fsm.get_inputs_between_states(s, curr)
-    return [s, fsm.pick_one_inputs(inputs)] + path
+    return [s, fsm.pick_one_inputs(inputs)] + cycle
 
 
 def build_prefix(fsm: BddFsm, trace: Trace, s: State) -> Witness:
     k = -1
-    for i, states in enumerate(trace):
-        if s.entailed(states):
+    for i in range(len(trace)):
+        if s.entailed(trace[i]):
             k = i
             break
 
