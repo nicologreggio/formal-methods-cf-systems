@@ -12,7 +12,7 @@ Assignments for the "Formal Methods for Cyber-Physical Systems" course ; Master'
 
 ---
 
-# Assignemnt 1 $-$ Invariant verification
+# Assignment 1 $-$ Invariant verification
 In this assignment you will implement the symbolic algorithm for invariant verification, using BDDs as data structure to represent and manipulate regions.
 
 The attached inv_mc.smv file contains a python script that uses the pynusmv library to verify invariants of SMV programs.
