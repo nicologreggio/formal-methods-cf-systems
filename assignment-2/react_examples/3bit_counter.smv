@@ -26,6 +26,3 @@ LTLSPEC
     
 LTLSPEC
     G F TRUE -> G F bit2.carry_out
-
-
-
