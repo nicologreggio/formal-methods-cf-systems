@@ -1,6 +1,10 @@
 # Formal Methods for Cyber-Physical Systems assignments
 Assignments for the "Formal Methods for Cyber-Physical Systems" course ; Master's Degree in Computer Science @ UniPd
 
+## Collaborators
+- [Fantinato Filippo](https://github.com/FilippoFantinato)
+- [Rigo Diletta](https://github.com/rigodiletta)
+
 ## Using the compose environment
 - provided you have a working installation of docker, you can easily devlop inside an ad-hoc container with a prepared environment
 - simply run: `docker compose up --build` to start the env. The first time this will pull the required stuff and build the image. Then a container will be started with the current folder binded in `/code` inside the container
